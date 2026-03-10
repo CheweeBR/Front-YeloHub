@@ -1,3 +1,4 @@
+import type { User } from '../types/auth.types'
 import { mockUsers } from './users.mock'
 
 interface LoginPayload {
@@ -5,8 +6,13 @@ interface LoginPayload {
   password: string
 }
 
+interface LoginResponse {
+  token: string
+  user: User
+}
+
 export const authMock = {
-  login: async (payload: LoginPayload) => {
+  login: async (payload: LoginPayload): Promise<LoginResponse> => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const match = mockUsers.find(

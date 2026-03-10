@@ -1,7 +1,7 @@
-type Role = 'admin' | 'vendedor' | 'cliente'
+import type { Role } from '../types/auth.types'
 
 const roleRoutes: Record<Role, string> = {
-  admin: '/dashboard',
+  admin: '/admin',
   vendedor: '/catalogo',
   cliente: '/catalogo',
 }
