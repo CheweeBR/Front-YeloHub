@@ -1,5 +1,5 @@
 
-export default function Catalogo() {
+export default function CatalogoPage() {
   return (
     <div>
       <h1>Catalogo</h1>
