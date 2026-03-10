@@ -5,7 +5,7 @@ import type { Role } from '../types/auth.types'
 interface CanAccessProps {
   roles: Role[]
   children: ReactNode
-  fallback?: ReactNode // o que mostrar se não tiver acesso
+  fallback?: ReactNode
 }
 
 export function CanAccess({ roles, children, fallback = null }: CanAccessProps) {
