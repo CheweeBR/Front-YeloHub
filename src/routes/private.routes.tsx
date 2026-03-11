@@ -1,7 +1,7 @@
 // private.routes.tsx
 import { Route } from 'react-router-dom'
 import MainLayout from '../layout/MainLayout'
-import { ProtectedRoute } from '../components/ProtectedRoute'
+import { ProtectedRoute } from '../components/security/ProtectedRoute'
 import AdminPage from '../pages/admin/admin'
 import CatalogoPage from '../pages/catalogo/catalogo'
 

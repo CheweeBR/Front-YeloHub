@@ -1,6 +1,6 @@
-import { useAuth } from '../context/authContext'
+import { useAuth } from '../../context/authContext'
 import type { ReactNode } from 'react'
-import type { Role } from '../types/auth.types'
+import type { Role } from '../../types/auth.types'
 
 interface CanAccessProps {
   roles: Role[]

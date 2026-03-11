@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '../context/authContext'
-import { CanAccess } from './CanAccess'
+import { useAuth } from '../../context/authContext'
+import { CanAccess } from '../security/CanAccess'
 
 export default function Header() {
   const { user, clearAuth } = useAuth()
@@ -27,7 +27,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className="bg-zinc-900 border-b border-zinc-800">
+      <nav className="bg-zinc-900 border-b border-zinc-800 fixed top-0 left-0 right-0 z-50">
         <div className="mx-auto px-6 flex items-center justify-between h-14">
 
           {/* Esquerda: logo + links */}

@@ -10,19 +10,30 @@ interface AuthContextProps extends AuthState {
 
 const AuthContext = createContext<AuthContextProps | null>(null)
 
+const getUserFromStorage = (): User | null => {
+  try {
+    const raw = sessionStorage.getItem('user')
+    return raw ? (JSON.parse(raw) as User) : null
+  } catch {
+    return null
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuthState] = useState<AuthState>({
-    user: null,
+    user: getUserFromStorage(),
     token: sessionStorage.getItem('token'),
   })
 
   const setAuth = (user: User, token: string) => {
     sessionStorage.setItem('token', token)
+    sessionStorage.setItem('user', JSON.stringify(user))
     setAuthState({ user, token })
   }
 
   const clearAuth = () => {
     sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
     setAuthState({ user: null, token: null })
   }
 
