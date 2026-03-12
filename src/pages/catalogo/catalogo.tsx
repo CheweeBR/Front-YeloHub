@@ -23,11 +23,28 @@ export default function CatalogoPage() {
 
   const clientes = getClientesByEmpresa(user.empresaId)
   const { produtosFiltrados, grupos, grupoAtivo, setGrupoAtivo, busca, setBusca } = useProdutos(user.empresaId)
-  const { carrinho, itens, total, quantidade, handleQtd, setQtdDireta, handlePreco, limpar } = useCarrinho()
+  const {
+    carrinho,
+    itens,
+    total,
+    quantidade,
+    handleQtd,
+    setQtdDireta,
+    handlePreco,
+    handlePrecoLivre,
+    setPrecoRaw,
+    limpar,
+  } = useCarrinho(
+    isVendedorLivre ? { precoInicial: () => 0 } : {}
+  )
 
   const [clienteSelecionado, setClienteSelecionado] = useState<ClienteCatalogo | null>(null)
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
   const [pedidoEnviado, setPedidoEnviado] = useState(false)
+
+  // Para vendedor livre: onBlur usa handlePrecoLivre (sem piso de tabela)
+  // Para demais: onBlur usa handlePreco (impõe piso = preço tabelado)
+  const onPrecoBlur = isVendedorLivre ? handlePrecoLivre : handlePreco
 
   const handleEnviarPedido = () => {
     // TODO: trocar por chamada real à API
@@ -37,6 +54,14 @@ export default function CatalogoPage() {
       empresaId: user.empresaId,
       itens,
       total,
+      itensAbaixoDaTabela: itens
+        .filter((i) => i.precoUnitario < i.produto.preco)
+        .map((i) => ({
+          produtoId: i.produto.id,
+          nome: i.produto.nome,
+          precoTabelado: i.produto.preco,
+          precoPraticado: i.precoUnitario,
+        })),
     })
     limpar()
     setCarrinhoAberto(false)
@@ -129,6 +154,7 @@ export default function CatalogoPage() {
               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           {quantidade} {quantidade === 1 ? 'item' : 'itens'}
+          {/* Vendedor livre não vê total no botão até todos os preços estarem definidos */}
           {showPrice && (
             <span className="border-l border-zinc-950/30 pl-3">
               {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -147,7 +173,8 @@ export default function CatalogoPage() {
         isVendedorLivre={isVendedorLivre}
         clienteSelecionado={clienteSelecionado}
         onQtd={handleQtd}
-        onPreco={handlePreco}
+        onPreco={onPrecoBlur}
+        onPrecoRaw={setPrecoRaw}
         onEnviar={handleEnviarPedido}
       />
     </div>

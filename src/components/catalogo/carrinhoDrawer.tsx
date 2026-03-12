@@ -15,6 +15,7 @@ interface CarrinhoDrawerProps {
   clienteSelecionado: ClienteCatalogo | null
   onQtd: (produto: Produto, delta: number) => void
   onPreco: (produto: Produto, valor: number) => void
+  onPrecoRaw: (produto: Produto, valor: number) => void
   onEnviar: () => void
 }
 
@@ -29,6 +30,7 @@ export function CarrinhoDrawer({
   clienteSelecionado,
   onQtd,
   onPreco,
+  onPrecoRaw,
   onEnviar,
 }: CarrinhoDrawerProps) {
   // Vendedor livre: todos os itens precisam ter preço > 0
@@ -40,6 +42,11 @@ export function CarrinhoDrawer({
     itens.length > 0 &&
     todosPrecosDefinidos &&
     (isVendedor ? !!clienteSelecionado : true)
+
+  // Itens abaixo do preço de tabela (apenas relevante para vendedor livre)
+  const itensAbaixoDaTabela = isVendedorLivre
+    ? itens.filter((i) => i.precoUnitario > 0 && i.precoUnitario < i.produto.preco)
+    : []
 
   const motivoBloqueio = () => {
     if (itens.length === 0) return null
@@ -98,12 +105,28 @@ export function CarrinhoDrawer({
           </div>
         )}
 
-        {/* Aviso vendedor livre */}
+        {/* Aviso: preços pendentes */}
         {isVendedorLivre && itens.length > 0 && !todosPrecosDefinidos && (
           <div className="px-6 py-2.5 bg-yellow-400/10 border-b border-yellow-400/20 shrink-0">
             <p className="text-yellow-400 text-xs font-mono">
               ⚠ Defina o valor unitário de todos os itens para finalizar
             </p>
+          </div>
+        )}
+
+        {/* Aviso: itens abaixo da tabela */}
+        {itensAbaixoDaTabela.length > 0 && (
+          <div className="px-6 py-3 bg-orange-950/40 border-b border-orange-800/40 shrink-0">
+            <p className="text-orange-400 text-xs font-mono font-semibold mb-1">
+              ⚠ {itensAbaixoDaTabela.length === 1 ? '1 item abaixo' : `${itensAbaixoDaTabela.length} itens abaixo`} do preço de tabela
+            </p>
+            <div className="space-y-0.5">
+              {itensAbaixoDaTabela.map((i) => (
+                <p key={i.produto.id} className="text-orange-500/80 text-[10px] font-mono">
+                  {i.produto.nome} — praticado {fmt(i.precoUnitario)} / tabela {fmt(i.produto.preco)}
+                </p>
+              ))}
+            </div>
           </div>
         )}
 
@@ -123,6 +146,7 @@ export function CarrinhoDrawer({
                   isVendedorLivre={isVendedorLivre}
                   onQtd={onQtd}
                   onPreco={onPreco}
+                  onPrecoRaw={onPrecoRaw}
                 />
               ))}
             </div>
@@ -135,6 +159,14 @@ export function CarrinhoDrawer({
             {showPrice && !isVendedorLivre && (
               <div className="flex justify-between items-center">
                 <span className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Total</span>
+                <span className="text-white text-lg font-mono">{fmt(total)}</span>
+              </div>
+            )}
+
+            {/* Total para vendedor livre (só mostra quando todos os preços estão definidos) */}
+            {isVendedorLivre && todosPrecosDefinidos && (
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Total do pedido</span>
                 <span className="text-white text-lg font-mono">{fmt(total)}</span>
               </div>
             )}

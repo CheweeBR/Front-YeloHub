@@ -4,8 +4,8 @@ import Header from '../components/header/header'
 export default function MainLayout() {
   return (
     <>
-      <Header/>
-      <main className="pt-14 min-h-screen bg-zinc-900">
+      <Header />
+      <main className="pt-14 min-h-[100dvh] bg-zinc-950">
         <Outlet />
       </main>
     </>

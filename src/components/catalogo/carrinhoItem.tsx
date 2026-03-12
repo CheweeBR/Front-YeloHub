@@ -8,8 +8,8 @@ interface CarrinhoItemProps {
   showPrice: boolean
   isVendedorLivre?: boolean
   onQtd: (produto: Produto, delta: number) => void
-  onPreco?: (produto: Produto, valor: number) => void       // onBlur — valida mínimo
-  onPrecoRaw?: (produto: Produto, valor: number) => void   // onChange — livre para digitar
+  onPreco?: (produto: Produto, valor: number) => void
+  onPrecoRaw?: (produto: Produto, valor: number) => void
 }
 
 export function CarrinhoItem({
@@ -21,36 +21,52 @@ export function CarrinhoItem({
   onPrecoRaw,
 }: CarrinhoItemProps) {
   const { produto, quantidade, precoUnitario } = item
-
   const precoPendente = isVendedorLivre && precoUnitario === 0
 
   return (
-    <div className="flex flex-col gap-3 px-6 py-4 border-b border-zinc-800">
-      <div className="flex items-center gap-4">
-        <img src={produto.foto} alt={produto.nome} className="w-16 h-16 object-cover shrink-0" />
+    <div className="px-4 py-4 border-b border-zinc-800">
 
-        <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-mono leading-snug truncate">{produto.nome}</p>
-          {showPrice && !isVendedorLivre && (
-            <p className="text-zinc-500 text-xs font-mono mt-0.5">
-              {fmt(precoUnitario)} × {quantidade}
+      {/* Linha 1: foto + nome + subtotal */}
+      <div className="flex gap-3">
+        <img
+          src={produto.foto}
+          alt={produto.nome}
+          className="w-14 h-14 object-cover shrink-0 rounded-sm"
+        />
+
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          {/* Nome completo — quebra em múltiplas linhas */}
+          <p className="text-white text-sm font-mono leading-snug">
+            {produto.nome}
+          </p>
+
+          {/* Subtotal (tabelado) ou pendência (livre) */}
+          {!isVendedorLivre && showPrice && (
+            <p className="text-yellow-400 text-xs font-mono mt-1">
+              {fmt(precoUnitario * quantidade)}
             </p>
           )}
-          {isVendedorLivre && (
-            <p className={`text-xs font-mono mt-0.5 ${precoPendente ? 'text-red-400' : 'text-zinc-500'}`}>
-              {precoPendente ? 'Informe o valor unitário' : `${quantidade} un`}
+          {isVendedorLivre && precoUnitario > 0 && (
+            <p className="text-yellow-400 text-xs font-mono mt-1">
+              {fmt(precoUnitario)} × {quantidade} = {fmt(precoUnitario * quantidade)}
             </p>
           )}
         </div>
+      </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+      {/* Linha 2: controle de quantidade */}
+      <div className="flex items-center gap-2 mt-3">
+        <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest w-20 shrink-0">
+          Quantidade
+        </span>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => onQtd(produto, -1)}
             className="w-8 h-8 border border-zinc-700 text-zinc-400 hover:border-yellow-400 hover:text-yellow-400 transition-colors text-sm font-mono flex items-center justify-center"
           >
             −
           </button>
-          <span className="w-6 text-center text-white text-sm font-mono">{quantidade}</span>
+          <span className="w-8 text-center text-white text-sm font-mono">{quantidade}</span>
           <button
             onClick={() => onQtd(produto, 1)}
             className="w-8 h-8 border border-zinc-700 text-zinc-400 hover:border-yellow-400 hover:text-yellow-400 transition-colors text-sm font-mono flex items-center justify-center"
@@ -58,18 +74,24 @@ export function CarrinhoItem({
             +
           </button>
         </div>
-
-        {showPrice && !isVendedorLivre && (
-          <p className="text-yellow-400 text-sm font-mono w-20 text-right shrink-0">
-            {fmt(precoUnitario * quantidade)}
-          </p>
-        )}
       </div>
 
-      {/* Input de preço — só para vendedor livre */}
+      {/* Linha 3 (tabelado): preço unitário readonly */}
+      {showPrice && !isVendedorLivre && (
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest w-20 shrink-0">
+            Unitário
+          </span>
+          <span className="text-zinc-400 text-xs font-mono">{fmt(precoUnitario)}</span>
+        </div>
+      )}
+
+      {/* Linha 3 (livre): input de preço */}
       {isVendedorLivre && (
-        <div className="flex items-center gap-2 pl-20">
-          <span className="text-zinc-600 text-xs font-mono shrink-0">Valor unitário R$</span>
+        <div className="flex items-center gap-2 mt-3">
+          <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest w-20 shrink-0">
+            Valor R$
+          </span>
           <input
             type="number"
             min={0}
@@ -79,10 +101,10 @@ export function CarrinhoItem({
             onChange={(e) => onPrecoRaw?.(produto, parseFloat(e.target.value) || 0)}
             onBlur={(e) => onPreco?.(produto, parseFloat(e.target.value) || 0)}
             className={`
-              flex-1 bg-zinc-800 border text-sm font-mono px-2.5 py-1.5 outline-none transition-colors
+              flex-1 bg-zinc-800 border text-sm font-mono px-3 py-2 outline-none transition-colors
               ${precoPendente
                 ? 'border-red-800 text-white focus:border-red-500 placeholder-red-900'
-                : 'border-zinc-700 text-yellow-400 focus:border-yellow-400 placeholder-zinc-700'}
+                : 'border-zinc-700 text-yellow-400 focus:border-yellow-400 placeholder-zinc-600'}
             `}
           />
         </div>

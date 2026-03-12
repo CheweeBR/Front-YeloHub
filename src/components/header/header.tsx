@@ -60,6 +60,14 @@ export default function Header() {
                   Dashboard
                 </NavLink>
               </CanAccess>
+
+              <CanAccess
+                roles={['admin', 'vendedor']}
+              >
+                <NavLink to="/pedidos" className={navLinkClass}>
+                  Pedidos
+                </NavLink>
+              </CanAccess>
             </div>
 
           </div>
@@ -154,6 +162,15 @@ export default function Header() {
               Admin
             </NavLink>
           </CanAccess>
+
+          <CanAccess
+            roles={['admin', 'vendedor']}
+          >
+            <NavLink to="/pedidos" className={drawerLinkClass} onClick={closeDrawer}>
+              Pedidos
+            </NavLink>
+          </CanAccess>
+
         </div>
 
         {/* Drawer footer: logout */}
