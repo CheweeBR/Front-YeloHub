@@ -4,7 +4,7 @@ export interface DashboardCard {
   key: string
   label: string
   route: string
-  value: number
+  value: number | string
   description: string
   svg: ReactNode
 }
@@ -130,6 +130,39 @@ export const dashboardCards: DashboardCard[] = [
         <rect x="88" y="62" width="26" height="16" rx="8" fill="#FACC15" opacity="0.12" stroke="#FACC15" strokeWidth="1" strokeOpacity="0.4" />
         <rect x="92" y="67" width="18" height="2" rx="1" fill="#FACC15" opacity="0.6" />
         <rect x="96" y="71" width="10" height="2" rx="1" fill="#FACC15" opacity="0.3" />
+      </svg>
+    ),
+  },
+  {
+    key: 'financeiro',
+    label: 'Financeiro',
+    route: '/admin/financeiro',
+    value: 'Ver relatório',
+    description: 'Faturamento, pagamentos e pedidos em aberto',
+    svg: (
+      <svg viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Cartão / extrato */}
+        <rect x="18" y="22" width="72" height="48" rx="4" fill="#27272A" stroke="#3F3F46" strokeWidth="1.5" />
+        <rect x="18" y="22" width="72" height="16" rx="4" fill="#FACC15" opacity="0.12" />
+        <rect x="18" y="32" width="72" height="6" rx="0" fill="#FACC15" opacity="0.06" />
+        {/* Chip */}
+        <rect x="26" y="27" width="12" height="9" rx="1.5" fill="#FACC15" opacity="0.35" stroke="#FACC15" strokeWidth="0.8" strokeOpacity="0.5" />
+        <line x1="26" y1="31" x2="38" y2="31" stroke="#FACC15" strokeWidth="0.8" strokeOpacity="0.4" />
+        <line x1="32" y1="27" x2="32" y2="36" stroke="#FACC15" strokeWidth="0.8" strokeOpacity="0.4" />
+        {/* Linhas de valor */}
+        <rect x="26" y="46" width="28" height="2.5" rx="1.25" fill="#FACC15" opacity="0.8" />
+        <rect x="26" y="52" width="44" height="2" rx="1" fill="#52525B" />
+        <rect x="26" y="58" width="36" height="2" rx="1" fill="#3F3F46" />
+        {/* Gráfico de barras */}
+        <rect x="98" y="58" width="8" height="32" rx="1" fill="#27272A" stroke="#3F3F46" strokeWidth="1" />
+        <rect x="98" y="70" width="8" height="20" rx="1" fill="#FACC15" opacity="0.25" />
+        <rect x="108" y="48" width="8" height="42" rx="1" fill="#27272A" stroke="#3F3F46" strokeWidth="1" />
+        <rect x="108" y="58" width="8" height="32" rx="1" fill="#FACC15" opacity="0.5" />
+        {/* Linha de base */}
+        <line x1="94" y1="90" x2="120" y2="90" stroke="#3F3F46" strokeWidth="1" />
+        {/* Seta de tendência */}
+        <path d="M92 68 L100 56 L108 62 L116 46" stroke="#FACC15" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
+        <circle cx="116" cy="46" r="2.5" fill="#FACC15" opacity="0.8" />
       </svg>
     ),
   },

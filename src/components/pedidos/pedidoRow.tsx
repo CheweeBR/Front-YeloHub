@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import type { Pedido } from '../../types/pedidos.types'
 import type { User } from '../../types/auth.types'
 import { StatusBadge } from './statusBadge'
@@ -18,15 +19,15 @@ const fmtHora = (iso: string) => {
 interface PedidoRowProps {
   pedido: Pedido
   user: User
-  onClick: () => void
 }
 
-export function PedidoRow({ pedido, user, onClick }: PedidoRowProps) {
+export function PedidoRow({ pedido, user }: PedidoRowProps) {
+  const navigate = useNavigate()
   const totalItens = pedido.itens.reduce((s, i) => s + i.quantidade, 0)
 
   return (
     <button
-      onClick={onClick}
+      onClick={() => navigate(`/pedidos/${pedido.id}`)}
       className="
         w-full text-left group flex flex-col sm:flex-row sm:items-center gap-4
         px-5 py-4 border-b border-zinc-800

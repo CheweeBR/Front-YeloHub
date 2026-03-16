@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import { useAuth } from '../../context/authContext'
 import { usePedidos } from '../../hooks/usePedidos'
 import { PedidosFiltros } from '../../components/pedidos/pedidosFiltros'
 import { PedidosBusca } from '../../components/pedidos/pedidoBusca'
 import { PedidoRow } from '../../components/pedidos/pedidoRow'
 import { PedidosPaginacao } from '../../components/pedidos/pedidoPaginacao'
-import { PedidoDetalhe } from '../../components/pedidos/pedidoDetalhe'
-import type { Pedido } from '../../types/pedidos.types'
 
 const subtituloByRole = {
   admin:    'Todos os pedidos',
@@ -17,8 +14,6 @@ const subtituloByRole = {
 export default function PedidosPage() {
   const { user } = useAuth()
   if (!user) return null
-
-  const [pedidoSelecionado, setPedidoSelecionado] = useState<Pedido | null>(null)
 
   const {
     pedidos,
@@ -38,7 +33,7 @@ export default function PedidosPage() {
   return (
     <div className="bg-zinc-950 min-h-[calc(100dvh-3.5rem)]">
 
-      {/* Header — sempre visível */}
+      {/* Header */}
       <div className="border-b border-zinc-800 px-6 py-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -50,100 +45,85 @@ export default function PedidosPage() {
                 className="text-white text-4xl uppercase leading-none"
                 style={{ fontFamily: "'Bebas Neue', 'Arial Black', sans-serif", letterSpacing: '0.05em' }}
               >
-                {pedidoSelecionado
-                  ? (pedidoSelecionado.pedidoNum ?? `#${pedidoSelecionado.id}`)
-                  : 'Pedidos'
-                }
+                Pedidos
               </h1>
             </div>
 
-            {/* Busca + filtro — apenas na lista */}
-            {!pedidoSelecionado && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
-                {isAdmin && (
-                  <PedidosBusca
-                    buscarPedido={buscarPedido}
-                    buscarCliente={buscarCliente}
-                    buscarVendedor={buscarVendedor}
-                    onPedido={setBuscarPedido}
-                    onCliente={setBuscarCliente}
-                    onVendedor={setBuscarVendedor}
-                  />
-                )}
-                <PedidosFiltros
-                  filtroAtivo={filtroStatus}
-                  contadores={contadores}
-                  onChange={setFiltroStatus}
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+              {isAdmin && (
+                <PedidosBusca
+                  buscarPedido={buscarPedido}
+                  buscarCliente={buscarCliente}
+                  buscarVendedor={buscarVendedor}
+                  onPedido={setBuscarPedido}
+                  onCliente={setBuscarCliente}
+                  onVendedor={setBuscarVendedor}
                 />
-              </div>
-            )}
+              )}
+              <PedidosFiltros
+                filtroAtivo={filtroStatus}
+                contadores={contadores}
+                onChange={setFiltroStatus}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Conteúdo: lista ou detalhe */}
-      {pedidoSelecionado ? (
-        <PedidoDetalhe
-          pedido={pedidoSelecionado}
-          user={user}
-          onVoltar={() => setPedidoSelecionado(null)}
-        />
-      ) : (
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="border border-zinc-800 bg-zinc-900">
+      {/* Lista */}
+      <div className="max-w-5xl mx-auto px-6 py-6">
+        <div className="border border-zinc-800 bg-zinc-900">
 
-            {/* Cabeçalho da tabela — desktop */}
-            <div className="hidden sm:flex items-center gap-4 px-5 py-3 border-b border-zinc-800 bg-zinc-800/40">
-              <div className="w-28 shrink-0">
-                <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Pedido</span>
-              </div>
-              <div className="flex-1 flex gap-3">
-                {user.role !== 'vendedor' && (
-                  <div className="flex-1">
-                    <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Vendedor</span>
-                  </div>
-                )}
-                {user.role !== 'cliente' && (
-                  <div className="flex-1">
-                    <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Cliente</span>
-                  </div>
-                )}
-                <div className="w-24 shrink-0">
-                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Itens</span>
+          {/* Cabeçalho da tabela — desktop */}
+          <div className="hidden sm:flex items-center gap-4 px-5 py-3 border-b border-zinc-800 bg-zinc-800/40">
+            <div className="w-28 shrink-0">
+              <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Pedido</span>
+            </div>
+            <div className="flex-1 flex gap-3">
+              {user.role !== 'vendedor' && (
+                <div className="flex-1">
+                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Vendedor</span>
                 </div>
-              </div>
-              <div className="shrink-0 text-right">
-                <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Total / Status</span>
+              )}
+              {user.role !== 'cliente' && (
+                <div className="flex-1">
+                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Cliente</span>
+                </div>
+              )}
+              <div className="w-24 shrink-0">
+                <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Itens</span>
               </div>
             </div>
-
-            {pedidos.length === 0 ? (
-              <div className="flex items-center justify-center py-20">
-                <p className="text-zinc-600 font-mono text-sm">Nenhum pedido encontrado.</p>
-              </div>
-            ) : (
-              pedidos.map((pedido) => (
-                <PedidoRow
-                  key={pedido.id}
-                  pedido={pedido}
-                  user={user}
-                  onClick={() => setPedidoSelecionado(pedido)}
-                />
-              ))
-            )}
+            <div className="shrink-0 text-right">
+              <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Total / Status</span>
+            </div>
           </div>
 
-          <PedidosPaginacao
-            numeroPagina={numeroPagina}
-            totalPaginas={totalPaginas}
-            total={total}
-            temAnterior={temAnterior}
-            temProxima={temProxima}
-            onAnterior={paginaAnterior}
-            onProxima={proximaPagina}
-          />
+          {pedidos.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <p className="text-zinc-600 font-mono text-sm">Nenhum pedido encontrado.</p>
+            </div>
+          ) : (
+            pedidos.map((pedido) => (
+              <PedidoRow
+                key={pedido.id}
+                pedido={pedido}
+                user={user}
+              />
+            ))
+          )}
         </div>
-      )}
+
+        <PedidosPaginacao
+          numeroPagina={numeroPagina}
+          totalPaginas={totalPaginas}
+          total={total}
+          temAnterior={temAnterior}
+          temProxima={temProxima}
+          onAnterior={paginaAnterior}
+          onProxima={proximaPagina}
+        />
+      </div>
 
     </div>
   )

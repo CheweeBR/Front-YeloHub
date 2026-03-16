@@ -6,14 +6,15 @@ import type { User } from '../types/auth.types'
 export type FiltroStatus = PedidoStatus | 'todos'
 
 export const statusFiltros: { value: FiltroStatus; label: string }[] = [
-  { value: 'todos',                label: 'Todos'          },
-  { value: 'enviado',              label: 'Aguardando'     },
-  { value: 'aguardando_pagamento', label: 'Ag. pagamento'  },
-  { value: 'confirmado',           label: 'Confirmado'     },
-  { value: 'em_preparacao',        label: 'Em preparação'  },
-  { value: 'entregue',             label: 'Entregue'       },
-  { value: 'concluido',            label: 'Concluído'      },
-  { value: 'cancelado',            label: 'Cancelado'      },
+  { value: 'todos',                label: 'Todos'             },
+  { value: 'aguardando_aprovacao', label: 'Aguard. aprovação' },
+  { value: 'em_preparo',           label: 'Em preparo'        },
+  { value: 'saiu_para_entrega',    label: 'Saiu p/ entrega'   },
+  { value: 'entregue',             label: 'Entregue'          },
+  { value: 'pagamento_pendente',   label: 'Pagto. pendente'   },
+  { value: 'concluido',            label: 'Concluído'         },
+  { value: 'recusado',             label: 'Recusado'          },
+  { value: 'cancelado',            label: 'Cancelado'         },
 ]
 
 const LIMIT = 30
@@ -72,7 +73,6 @@ export function usePedidos(user: User) {
     }
   }, [baseParams])
 
-  // Inicializa
   useMemo(() => { load(state) }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = useCallback((partial: Partial<State>) => {
@@ -132,6 +132,3 @@ export function usePedidos(user: User) {
     total,
   }
 }
-
-
-

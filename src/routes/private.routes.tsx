@@ -4,7 +4,11 @@ import { ProtectedRoute } from '../components/security/ProtectedRoute'
 import AdminPage from '../pages/admin/admin'
 import CatalogoPage from '../pages/catalogo/catalogo'
 import PedidosPage from '../pages/pedidos/pedidos'
-import EmBreve from '../components/emBreve'
+import PedidoDetalhePage from '../pages/pedidos/pedidoDetalhePage'
+import VendedoresPage from '../pages/admin/vendedores/vendedores'
+import ClientesPage from '../pages/admin/clientes/clientes'
+import ProdutosPage from '../pages/admin/produtos/produtos'
+import FinanceiroPage from '../pages/admin/financeiro/financeiro'
 
 export const privateRoutes = (
   <Route element={<MainLayout />}>
@@ -23,19 +27,29 @@ export const privateRoutes = (
         <PedidosPage />
       </ProtectedRoute>
     } />
+    <Route path="/pedidos/:id" element={
+      <ProtectedRoute roles={['admin', 'vendedor']}>
+        <PedidoDetalhePage />
+      </ProtectedRoute>
+    } />
     <Route path="/admin/vendedores" element={
       <ProtectedRoute roles={['admin']}>
-        <EmBreve titulo="Vendedores" />
+        <VendedoresPage />
       </ProtectedRoute>
     } />
     <Route path="/admin/clientes" element={
       <ProtectedRoute roles={['admin']}>
-        <EmBreve titulo="Clientes" />
+        <ClientesPage />
       </ProtectedRoute>
     } />
     <Route path="/admin/produtos" element={
       <ProtectedRoute roles={['admin']}>
-        <EmBreve titulo="Produtos" />
+        <ProdutosPage />
+      </ProtectedRoute>
+    } />
+    <Route path="/admin/financeiro" element={
+      <ProtectedRoute roles={['admin']}>
+        <FinanceiroPage />
       </ProtectedRoute>
     } />
   </Route>

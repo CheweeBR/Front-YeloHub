@@ -1,33 +1,28 @@
 import type { PedidoStatus } from '../../types/pedidos.types'
 
 const config: Record<PedidoStatus, { label: string; classes: string; dot: string }> = {
-  enviado: {
-    label: 'Aguardando',
+  aguardando_aprovacao: {
+    label: 'Aguard. aprovação',
     classes: 'bg-yellow-400/10 border-yellow-400/30 text-yellow-400',
-    dot: 'bg-yellow-400',
+    dot: 'bg-yellow-400 animate-pulse',
   },
-  confirmado: {
-    label: 'Confirmado',
-    classes: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-    dot: 'bg-emerald-400',
-  },
-  em_preparacao: {
-    label: 'Em preparação',
+  em_preparo: {
+    label: 'Em preparo',
     classes: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
     dot: 'bg-blue-400 animate-pulse',
   },
-  cancelado: {
-    label: 'Cancelado',
-    classes: 'bg-red-500/10 border-red-500/30 text-red-400',
-    dot: 'bg-red-500',
+  saiu_para_entrega: {
+    label: 'Saiu p/ entrega',
+    classes: 'bg-violet-500/10 border-violet-500/30 text-violet-400',
+    dot: 'bg-violet-400 animate-pulse',
   },
   entregue: {
     label: 'Entregue',
-    classes: 'bg-emerald-400/10 border-emerald-400/30 text-emerald-300',
-    dot: 'bg-emerald-300',
+    classes: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+    dot: 'bg-emerald-400',
   },
-  aguardando_pagamento: {
-    label: 'Ag. pagamento',
+  pagamento_pendente: {
+    label: 'Pagto. pendente',
     classes: 'bg-orange-500/10 border-orange-500/30 text-orange-400',
     dot: 'bg-orange-400 animate-pulse',
   },
@@ -35,6 +30,16 @@ const config: Record<PedidoStatus, { label: string; classes: string; dot: string
     label: 'Concluído',
     classes: 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400',
     dot: 'bg-zinc-400',
+  },
+  recusado: {
+    label: 'Recusado',
+    classes: 'bg-red-500/10 border-red-500/30 text-red-400',
+    dot: 'bg-red-500',
+  },
+  cancelado: {
+    label: 'Cancelado',
+    classes: 'bg-red-900/20 border-red-900/30 text-red-600',
+    dot: 'bg-red-700',
   },
 }
 

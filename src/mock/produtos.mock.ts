@@ -1,6 +1,7 @@
 import type { Produto } from '../types/produtos.types'
 
-export const mockProdutos: Produto[] = [
+// Mutável para permitir CRUD em memória
+let mockProdutos: Produto[] = [
   // Empresa 1 — Churrasqueiras, Grelhas & Acessórios
   {
     id: 1,
@@ -204,5 +205,46 @@ export const mockProdutos: Produto[] = [
   },
 ]
 
+let nextId = 21
+
+// ── Tipos ─────────────────────────────────────────────────────────────────
+
+export interface ProdutoFormData {
+  nome: string
+  descricao: string
+  foto: string
+  grupo: string
+  preco: number
+}
+
+// ── Leitura ───────────────────────────────────────────────────────────────
+
 export const getProdutosByEmpresa = (empresaId: number): Produto[] =>
-  mockProdutos.filter((p) => p.empresaId === empresaId)
+  mockProdutos
+    .filter((p) => p.empresaId === empresaId)
+    .sort((a, b) => a.grupo.localeCompare(b.grupo, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR'))
+
+export const getGruposByEmpresa = (empresaId: number): string[] =>
+  [...new Set(mockProdutos.filter((p) => p.empresaId === empresaId).map((p) => p.grupo))].sort()
+
+// ── Mutação ───────────────────────────────────────────────────────────────
+
+export function createProduto(data: ProdutoFormData, empresaId: number): Produto {
+  const produto: Produto = { id: nextId++, ...data, empresaId }
+  mockProdutos = [...mockProdutos, produto]
+  return produto
+}
+
+export function updateProduto(id: number, data: ProdutoFormData): Produto | null {
+  const idx = mockProdutos.findIndex((p) => p.id === id)
+  if (idx === -1) return null
+  const updated = { ...mockProdutos[idx], ...data }
+  mockProdutos = mockProdutos.map((p) => (p.id === id ? updated : p))
+  return updated
+}
+
+export function deleteProduto(id: number): boolean {
+  const antes = mockProdutos.length
+  mockProdutos = mockProdutos.filter((p) => p.id !== id)
+  return mockProdutos.length < antes
+}
