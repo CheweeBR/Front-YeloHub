@@ -42,6 +42,7 @@ export const privateRoutes = (
         <ClientesPage />
       </ProtectedRoute>
     } />
+    
     <Route path="/admin/produtos" element={
       <ProtectedRoute roles={['admin']}>
         <ProdutosPage />
