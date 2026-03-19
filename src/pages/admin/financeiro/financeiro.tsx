@@ -102,7 +102,7 @@ export default function FinanceiroPage() {
       <div className="border-b border-zinc-800 px-6 py-6">
         <div className="max-w-[1200px] mx-auto">
           <p className="text-yellow-400 text-xs font-mono uppercase tracking-[0.3em] mb-1">Painel administrativo</p>
-          <h1 className="text-white text-5xl uppercase leading-none"
+          <h1 className="text-white text-4xl uppercase leading-none"
             style={{ fontFamily: "'Bebas Neue', 'Arial Black', sans-serif", letterSpacing: '0.05em' }}>
             Financeiro
           </h1>

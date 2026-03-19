@@ -5,6 +5,7 @@ interface PedidosBuscaProps {
   onPedido:    (v: string) => void
   onCliente:   (v: string) => void
   onVendedor:  (v: string) => void
+  showVendedor?: boolean
 }
 
 function InputBusca({
@@ -45,6 +46,7 @@ export function PedidosBusca({
   onPedido,
   onCliente,
   onVendedor,
+  showVendedor = true,
 }: PedidosBuscaProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-2">
@@ -59,11 +61,13 @@ export function PedidosBusca({
         onChange={onCliente}
         placeholder="Cliente ou CPF/CNPJ..."
       />
-      <InputBusca
-        value={buscarVendedor}
-        onChange={onVendedor}
-        placeholder="Vendedor ou CPF..."
-      />
+      {showVendedor && (
+        <InputBusca
+          value={buscarVendedor}
+          onChange={onVendedor}
+          placeholder="Vendedor ou CPF..."
+        />
+      )}
     </div>
   )
 }

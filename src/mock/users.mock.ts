@@ -54,7 +54,7 @@ let mockUsers: MockUserAuth[] = [
     document: '333.333.333-33',
     role: 'vendedor',
     empresaId: 1,
-    ativo: false,
+    ativo: true,
     criadoEm: '2024-08-20T14:00:00Z',
     vendedorTipo: 'tabelado',
     password: '123',

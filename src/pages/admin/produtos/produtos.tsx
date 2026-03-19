@@ -328,7 +328,7 @@ export default function ProdutosPage() {
         <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <p className="text-yellow-400 text-xs font-mono uppercase tracking-[0.3em] mb-1">Painel administrativo</p>
-            <h1 className="text-white text-5xl uppercase leading-none"
+            <h1 className="text-white text-4xl uppercase leading-none"
               style={{ fontFamily: "'Bebas Neue', 'Arial Black', sans-serif", letterSpacing: '0.05em' }}>
               Produtos
             </h1>
