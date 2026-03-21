@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { useAuth } from '../../context/authContext'
+import { useSearchParams } from 'react-router-dom'
+import { useAppSelector } from '../../store/hooks'
 import { usePedidos } from '../../hooks/usePedidos'
 import { PedidosFiltros } from '../../components/pedidos/pedidosFiltros'
 import { PedidosBusca } from '../../components/pedidos/pedidoBusca'
@@ -20,13 +21,10 @@ function useHideOnScroll(threshold = 8) {
     const onScroll = () => {
       const currentY = window.scrollY
       const delta = currentY - lastY.current
-
       if (Math.abs(delta) < threshold) return
-
       setVisible(delta < 0 || currentY < 60)
       lastY.current = currentY
     }
-
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [threshold])
@@ -35,8 +33,10 @@ function useHideOnScroll(threshold = 8) {
 }
 
 export default function PedidosPage() {
-  const { user } = useAuth()
-  if (!user) return null
+  // ── Todos os hooks primeiro, sem nenhum return antes deles ──
+  const user = useAppSelector((state) => state.auth.user)
+  const [searchParams] = useSearchParams()
+  const filtrosVisiveis = useHideOnScroll()
 
   const {
     pedidos,
@@ -49,54 +49,63 @@ export default function PedidosPage() {
     temProxima,      temAnterior,
     numeroPagina,    totalPaginas,
     total,
-  } = usePedidos(user)
+  } = usePedidos(user!)  // user é garantido abaixo
+
+  useEffect(() => {
+    const clienteParam  = searchParams.get('cliente')
+    const vendedorParam = searchParams.get('vendedor')
+    if (clienteParam)  setBuscarCliente(decodeURIComponent(clienteParam))
+    if (vendedorParam) setBuscarVendedor(decodeURIComponent(vendedorParam))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Só aqui o early return é seguro ──
+  if (!user) return null
 
   const isAdmin    = user.role === 'admin'
   const isVendedor = user.role === 'vendedor'
   const showBusca  = isAdmin || isVendedor
 
-  const filtrosVisiveis = useHideOnScroll()
+  const filtrosAtivos = [
+    buscarCliente  ? { label: buscarCliente,  limpar: () => setBuscarCliente('')  } : null,
+    buscarVendedor ? { label: buscarVendedor, limpar: () => setBuscarVendedor('') } : null,
+  ].filter(Boolean) as { label: string; limpar: () => void }[]
 
   return (
     <div className="bg-zinc-950 min-h-[calc(100dvh-3.5rem)]">
 
-      {/* Header */}
       <div className="border-b border-zinc-800 px-4 sm:px-6 py-6">
         <div className="max-w-5xl mx-auto">
           <p className="text-yellow-400 text-xs font-mono uppercase tracking-[0.3em] mb-1">
             {subtituloByRole[user.role]}
           </p>
-          <h1
-            className="text-white text-4xl uppercase leading-none"
-            style={{ fontFamily: "'Bebas Neue', 'Arial Black', sans-serif", letterSpacing: '0.05em' }}
-          >
+          <h1 className="text-white text-4xl uppercase leading-none"
+            style={{ fontFamily: "'Bebas Neue', 'Arial Black', sans-serif", letterSpacing: '0.05em' }}>
             Pedidos
           </h1>
+
+          {filtrosAtivos.length > 0 && (
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="text-zinc-500 text-[10px] font-mono uppercase tracking-widest">Filtrando por:</span>
+              {filtrosAtivos.map((f) => (
+                <span key={f.label}
+                  className="inline-flex items-center gap-1.5 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-[10px] font-mono px-2 py-0.5">
+                  {f.label}
+                  <button onClick={f.limpar} className="hover:text-white transition-colors ml-0.5" title="Limpar filtro">×</button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Filtros sticky — some ao rolar para baixo, volta ao rolar para cima */}
-      <div
-        className={`
-          border-b border-zinc-800 px-4 sm:px-6 py-3
-          bg-zinc-900/80 backdrop-blur-sm
-          sticky top-14 z-10
-          transition-transform duration-200 ease-in-out
-          ${filtrosVisiveis ? 'translate-y-0' : '-translate-y-full'}
-        `}
-      >
+      <div className={`border-b border-zinc-800 px-4 sm:px-6 py-3 bg-zinc-900/80 backdrop-blur-sm sticky top-14 z-10 transition-transform duration-200 ease-in-out ${filtrosVisiveis ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="max-w-5xl mx-auto flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <PedidosFiltros
-              filtroAtivo={filtroStatus}
-              contadores={contadores}
-              onChange={setFiltroStatus}
-            />
+            <PedidosFiltros filtroAtivo={filtroStatus} contadores={contadores} onChange={setFiltroStatus} />
             <span className="text-zinc-700 text-[10px] font-mono shrink-0">
               {total} {total === 1 ? 'pedido' : 'pedidos'}
             </span>
           </div>
-
           {showBusca && (
             <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <PedidosBusca
@@ -113,9 +122,7 @@ export default function PedidosPage() {
         </div>
       </div>
 
-      {/* Lista */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-
         {pedidos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-12 h-12 border border-zinc-800 flex items-center justify-center">
@@ -130,31 +137,19 @@ export default function PedidosPage() {
           <>
             <div className="border border-zinc-800 overflow-hidden">
               <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-2.5 border-b border-zinc-800 bg-zinc-800/50">
-                <div className="col-span-3">
-                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Pedido / Data</span>
-                </div>
+                <div className="col-span-3"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Pedido / Data</span></div>
                 <div className="col-span-4">
                   <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">
                     {isAdmin ? 'Vendedor / Cliente' : isVendedor ? 'Cliente' : 'Vendedor'}
                   </span>
                 </div>
-                <div className="col-span-2">
-                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Status</span>
-                </div>
-                <div className="col-span-3 text-right">
-                  <span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Total</span>
-                </div>
+                <div className="col-span-2"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Status</span></div>
+                <div className="col-span-3 text-right"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Total</span></div>
               </div>
-
               {pedidos.map((pedido) => (
-                <PedidoRow
-                  key={pedido.id}
-                  pedido={pedido}
-                  user={user}
-                />
+                <PedidoRow key={pedido.id} pedido={pedido} user={user} />
               ))}
             </div>
-
             <div className="mt-4">
               <PedidosPaginacao
                 numeroPagina={numeroPagina}

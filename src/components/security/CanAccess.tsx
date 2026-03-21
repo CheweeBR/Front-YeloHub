@@ -1,6 +1,6 @@
-import { useAuth } from '../../context/authContext'
 import type { ReactNode } from 'react'
 import type { Role } from '../../types/auth.types'
+import { useAppSelector } from '../../store/hooks'
 
 interface CanAccessProps {
   roles: Role[]
@@ -9,6 +9,7 @@ interface CanAccessProps {
 }
 
 export function CanAccess({ roles, children, fallback = null }: CanAccessProps) {
-  const { hasRole } = useAuth()
-  return hasRole(roles) ? <>{children}</> : <>{fallback}</>
+  const user = useAppSelector((state) => state.auth.user)
+  const hasRole = user ? roles.includes(user.role) : false
+  return hasRole ? <>{children}</> : <>{fallback}</>
 }

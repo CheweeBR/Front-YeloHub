@@ -1,56 +1,33 @@
-import { createContext, useContext, useState } from 'react'
-import type { ReactNode } from 'react'
-import type { User, AuthState, Role } from '../types/auth.types'
+// Este arquivo agora é apenas um adaptador que lê do Redux.
+// Todos os componentes que usam useAuth() continuam funcionando sem nenhuma mudança.
 
-interface AuthContextProps extends AuthState {
-  setAuth: (user: User, token: string) => void
-  clearAuth: () => void
-  hasRole: (roles: Role[]) => boolean
-}
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { setCredentials, clearCredentials } from '../store/slices/authSlice'
+import type { User, Role } from '../types/auth.types'
 
-const AuthContext = createContext<AuthContextProps | null>(null)
-
-const getUserFromStorage = (): User | null => {
-  try {
-    const raw = sessionStorage.getItem('user')
-    return raw ? (JSON.parse(raw) as User) : null
-  } catch {
-    return null
-  }
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, setAuthState] = useState<AuthState>({
-    user: getUserFromStorage(),
-    token: sessionStorage.getItem('token'),
-  })
+export function useAuth() {
+  const dispatch = useAppDispatch()
+  const user = useAppSelector((state) => state.auth.user)
+  const token = useAppSelector((state) => state.auth.token)
 
   const setAuth = (user: User, token: string) => {
-    sessionStorage.setItem('token', token)
-    sessionStorage.setItem('user', JSON.stringify(user))
-    setAuthState({ user, token })
+    dispatch(setCredentials({ user, token }))
   }
 
   const clearAuth = () => {
-    sessionStorage.removeItem('token')
-    sessionStorage.removeItem('user')
-    setAuthState({ user: null, token: null })
+    dispatch(clearCredentials())
   }
 
-  const hasRole = (roles: Role[]) => {
-    if (!auth.user) return false
-    return roles.includes(auth.user.role)
+  const hasRole = (roles: Role[]): boolean => {
+    if (!user) return false
+    return roles.includes(user.role)
   }
 
-  return (
-    <AuthContext.Provider value={{ ...auth, setAuth, clearAuth, hasRole }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return { user, token, setAuth, clearAuth, hasRole }
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth deve ser usado dentro do AuthProvider')
-  return context
+// AuthProvider não faz mais nada — existe só para não quebrar o App.tsx
+// enquanto você não remove ele de lá
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
 }

@@ -1,13 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppSelector } from '../../../store/hooks'
 import type { User } from '../../../types/auth.types'
-import {
-  getUsersByRole,
-  createUser,
-  updateUser,
-  toggleUserAtivo,
-  resetUserPassword,
-} from '../../../mock/users.mock'
-import { useAuth } from '../../../context/authContext'
+import { getUsersByRole, createUser, updateUser, toggleUserAtivo, resetUserPassword } from '../../../mock/users.mock'
 import { VendedorDrawer, type VendedorFormData } from '../../../components/admin/vendedor/vendedorDrawer'
 
 const fmtData = (iso: string) =>
@@ -16,31 +11,29 @@ const fmtData = (iso: string) =>
 interface SenhaModal { nome: string; senha: string }
 
 export default function VendedoresPage() {
-  const { user } = useAuth()
-  if (!user) return null
+  const navigate = useNavigate()
+  const user = useAppSelector((state) => state.auth.user)
 
-  const [lista, setLista] = useState<User[]>(() => getUsersByRole(user.empresaId, 'vendedor'))
+  const [lista, setLista] = useState<User[]>(() =>
+    user ? getUsersByRole(user.empresaId, 'vendedor') : []
+  )
   const [drawerAberto, setDrawerAberto] = useState(false)
   const [vendedorEditando, setVendedorEditando] = useState<User | null>(null)
   const [senhaModal, setSenhaModal] = useState<SenhaModal | null>(null)
   const [busca, setBusca] = useState('')
 
+  if (!user) return null
+
   const reload = () => setLista(getUsersByRole(user.empresaId, 'vendedor'))
 
   const handleSalvar = (data: VendedorFormData) => {
-    if (vendedorEditando) {
-      updateUser(vendedorEditando.id, data)
-    } else {
-      createUser({ ...data, role: 'vendedor', empresaId: user.empresaId })
-    }
+    if (vendedorEditando) updateUser(vendedorEditando.id, data)
+    else createUser({ ...data, role: 'vendedor', empresaId: user.empresaId })
     reload()
     setDrawerAberto(false)
   }
 
-  const handleToggleAtivo = (v: User) => {
-    toggleUserAtivo(v.id)
-    reload()
-  }
+  const handleToggleAtivo = (v: User) => { toggleUserAtivo(v.id); reload() }
 
   const handleResetSenha = (v: User) => {
     const novaSenha = resetUserPassword(v.id)
@@ -59,7 +52,6 @@ export default function VendedoresPage() {
   return (
     <div className="bg-zinc-950 min-h-[calc(100dvh-3.5rem)]">
 
-      {/* Header */}
       <div className="border-b border-zinc-800 px-6 py-8">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
@@ -77,10 +69,8 @@ export default function VendedoresPage() {
               </span>
             </div>
           </div>
-          <button
-            onClick={() => { setVendedorEditando(null); setDrawerAberto(true) }}
-            className="flex items-center gap-2 bg-yellow-400 text-zinc-950 font-mono text-sm uppercase tracking-widest px-5 py-3 hover:bg-yellow-300 transition-colors shrink-0"
-          >
+          <button onClick={() => { setVendedorEditando(null); setDrawerAberto(true) }}
+            className="flex items-center gap-2 bg-yellow-400 text-zinc-950 font-mono text-sm uppercase tracking-widest px-5 py-3 hover:bg-yellow-300 transition-colors shrink-0">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -89,30 +79,26 @@ export default function VendedoresPage() {
         </div>
       </div>
 
-      {/* Busca */}
       <div className="max-w-5xl mx-auto px-6 pt-6">
         <div className="relative">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input
-            type="text" value={busca} onChange={(e) => setBusca(e.target.value)}
+          <input type="text" value={busca} onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por nome, documento ou e-mail..."
-            className="w-full bg-zinc-900 border border-zinc-800 text-white text-sm font-mono pl-10 pr-4 py-3 outline-none focus:border-yellow-400 transition-colors placeholder-zinc-700"
-          />
+            className="w-full bg-zinc-900 border border-zinc-800 text-white text-sm font-mono pl-10 pr-4 py-3 outline-none focus:border-yellow-400 transition-colors placeholder-zinc-700" />
         </div>
       </div>
 
-      {/* Tabela */}
       <div className="max-w-5xl mx-auto px-6 py-6">
         <div className="border border-zinc-800 bg-zinc-900">
 
           <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-zinc-800 bg-zinc-800/40">
-            <div className="col-span-4"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Vendedor</span></div>
+            <div className="col-span-3"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Vendedor</span></div>
             <div className="col-span-3"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Documento / E-mail</span></div>
             <div className="col-span-2 text-center"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Tipo</span></div>
             <div className="col-span-1 text-center"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Status</span></div>
-            <div className="col-span-2 text-right"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Ações</span></div>
+            <div className="col-span-3 text-right"><span className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">Ações</span></div>
           </div>
 
           {listaFiltrada.length === 0 ? (
@@ -124,10 +110,9 @@ export default function VendedoresPage() {
           ) : (
             listaFiltrada.map((v) => (
               <div key={v.id}
-                className={`flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-3 sm:gap-4 px-5 py-4 border-b border-zinc-800 last:border-0 transition-opacity ${!v.ativo ? 'opacity-50' : ''}`}
-              >
-                {/* Nome */}
-                <div className="col-span-4 flex items-center gap-3">
+                className={`flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-3 sm:gap-4 px-5 py-4 border-b border-zinc-800 last:border-0 transition-opacity ${!v.ativo ? 'opacity-50' : ''}`}>
+
+                <div className="col-span-3 flex items-center gap-3">
                   <div className="w-8 h-8 bg-zinc-800 border border-zinc-700 flex items-center justify-center shrink-0">
                     <span className="text-yellow-400 text-xs font-mono uppercase">{v.name.charAt(0)}</span>
                   </div>
@@ -137,41 +122,35 @@ export default function VendedoresPage() {
                   </div>
                 </div>
 
-                {/* Documento + Email */}
                 <div className="col-span-3 min-w-0">
                   <p className="text-zinc-300 text-xs font-mono">{v.document}</p>
                   <p className="text-zinc-500 text-[10px] font-mono truncate mt-0.5">{v.email}</p>
                 </div>
 
-                {/* Tipo */}
                 <div className="col-span-2 flex sm:justify-center">
-                  <span className={`inline-flex items-center border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest ${
-                    v.vendedorTipo === 'livre'
-                      ? 'bg-violet-500/10 border-violet-500/30 text-violet-400'
-                      : 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400'
-                  }`}>
+                  <span className={`inline-flex items-center border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest ${v.vendedorTipo === 'livre' ? 'bg-violet-500/10 border-violet-500/30 text-violet-400' : 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400'}`}>
                     {v.vendedorTipo === 'livre' ? 'Livre' : 'Tabelado'}
                   </span>
                 </div>
 
-                {/* Status — toggle ao clicar */}
                 <div className="col-span-1 flex sm:justify-center">
                   <button onClick={() => handleToggleAtivo(v)} title={v.ativo ? 'Desativar' : 'Ativar'} className="group">
-                    <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest transition-colors ${
-                      v.ativo
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 group-hover:bg-red-500/10 group-hover:border-red-500/30 group-hover:text-red-400'
-                        : 'bg-zinc-800 border-zinc-700 text-zinc-500 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 group-hover:text-emerald-400'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
-                        v.ativo ? 'bg-emerald-400 group-hover:bg-red-400' : 'bg-zinc-600 group-hover:bg-emerald-400'
-                      }`} />
+                    <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest transition-colors ${v.ativo ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 group-hover:bg-red-500/10 group-hover:border-red-500/30 group-hover:text-red-400' : 'bg-zinc-800 border-zinc-700 text-zinc-500 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 group-hover:text-emerald-400'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${v.ativo ? 'bg-emerald-400 group-hover:bg-red-400' : 'bg-zinc-600 group-hover:bg-emerald-400'}`} />
                       <span className="hidden sm:inline">{v.ativo ? 'Ativo' : 'Inativo'}</span>
                     </span>
                   </button>
                 </div>
 
-                {/* Ações */}
-                <div className="col-span-2 flex items-center justify-end gap-2">
+                <div className="col-span-3 flex items-center justify-end gap-2">
+                  <button onClick={() => navigate(`/pedidos?vendedor=${encodeURIComponent(v.name)}`)}
+                    title="Ver pedidos do vendedor"
+                    className="w-8 h-8 border border-zinc-700 text-zinc-500 hover:border-yellow-400 hover:text-yellow-400 transition-colors flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </button>
                   <button onClick={() => { setVendedorEditando(v); setDrawerAberto(true) }} title="Editar"
                     className="w-8 h-8 border border-zinc-700 text-zinc-500 hover:border-yellow-400 hover:text-yellow-400 transition-colors flex items-center justify-center">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,20 +168,13 @@ export default function VendedoresPage() {
             ))
           )}
         </div>
-
         <p className="text-zinc-700 text-[10px] font-mono mt-3 text-right">
           {listaFiltrada.length} {listaFiltrada.length === 1 ? 'vendedor' : 'vendedores'}{busca && ' encontrados'}
         </p>
       </div>
 
-      <VendedorDrawer
-        aberto={drawerAberto}
-        vendedor={vendedorEditando}
-        onFechar={() => setDrawerAberto(false)}
-        onSalvar={handleSalvar}
-      />
+      <VendedorDrawer aberto={drawerAberto} vendedor={vendedorEditando} onFechar={() => setDrawerAberto(false)} onSalvar={handleSalvar} />
 
-      {/* Modal nova senha */}
       {senhaModal && (
         <>
           <div className="fixed inset-0 bg-black/70 z-50" onClick={() => setSenhaModal(null)} />

@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../context/authContext'
 import type { ReactNode } from 'react'
 import type { Role } from '../../types/auth.types'
+import { useAppSelector } from '../../store/hooks'
 
 interface ProtectedRouteProps {
   roles: Role[]
@@ -9,10 +9,11 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ roles, children }: ProtectedRouteProps) {
-  const { token, hasRole } = useAuth()
+  const user  = useAppSelector((state) => state.auth.user)
+  const token = useAppSelector((state) => state.auth.token)
 
   if (!token) return <Navigate to="/login" replace />
-  if (!hasRole(roles)) return <Navigate to="/sem-acesso" replace />
+  if (!user || !roles.includes(user.role)) return <Navigate to="/sem-acesso" replace />
 
   return <>{children}</>
 }

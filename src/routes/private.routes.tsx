@@ -9,6 +9,7 @@ import VendedoresPage from '../pages/admin/vendedores/vendedores'
 import ClientesPage from '../pages/admin/clientes/clientes'
 import ProdutosPage from '../pages/admin/produtos/produtos'
 import FinanceiroPage from '../pages/admin/financeiro/financeiro'
+import ConfiguracoesPage from '../pages/admin/config/config'
 
 export const privateRoutes = (
   <Route element={<MainLayout />}>
@@ -42,7 +43,6 @@ export const privateRoutes = (
         <ClientesPage />
       </ProtectedRoute>
     } />
-    
     <Route path="/admin/produtos" element={
       <ProtectedRoute roles={['admin']}>
         <ProdutosPage />
@@ -51,6 +51,11 @@ export const privateRoutes = (
     <Route path="/admin/financeiro" element={
       <ProtectedRoute roles={['admin']}>
         <FinanceiroPage />
+      </ProtectedRoute>
+    } />
+    <Route path="/admin/configuracoes" element={
+      <ProtectedRoute roles={['admin']}>
+        <ConfiguracoesPage />
       </ProtectedRoute>
     } />
   </Route>

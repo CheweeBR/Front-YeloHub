@@ -1,6 +1,7 @@
 import type { Pedido } from '../types/pedidos.types'
 import type { PedidoStatus } from '../types/pedidos.types'
 import { transicoesPorStatus } from '../types/pedidos.types'
+import type { ItemCarrinho } from '../types/produtos.types'
 
 let mockPedidos: Pedido[] = [
   {
@@ -505,12 +506,59 @@ let mockPedidos: Pedido[] = [
   },
 ]
 
+// ── Contador de IDs ─────────────────────────────────────────────────────────
+let nextId = 51
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
 const stripMask = (v: string) => v.replace(/\D/g, '')
 
 const baseByEmpresa = (empresaId: number) =>
   mockPedidos
     .filter((p) => p.empresaId === empresaId)
     .sort((a, b) => new Date(b.criadoEm!).getTime() - new Date(a.criadoEm!).getTime())
+
+// ── Criação de pedido ───────────────────────────────────────────────────────
+
+export interface CreatePedidoPayload {
+  empresaId:        number
+  clienteId:        number
+  clienteNome:      string
+  clienteDocument:  string
+  vendedorId?:      number
+  vendedorNome?:    string
+  vendedorDocument?: string
+  itens:            ItemCarrinho[]
+  total:            number
+}
+
+export function createPedido(payload: CreatePedidoPayload): Pedido {
+  const id  = nextId++
+  const ano = new Date().getFullYear()
+  const num = String(id).padStart(3, '0')
+
+  const novoPedido: Pedido = {
+    id,
+    pedidoNum:        `PED-${ano}-${num}`,
+    empresaId:        payload.empresaId,
+    clienteId:        payload.clienteId,
+    clienteNome:      payload.clienteNome,
+    clienteDocument:  payload.clienteDocument,
+    vendedorId:       payload.vendedorId,
+    vendedorNome:     payload.vendedorNome,
+    vendedorDocument: payload.vendedorDocument,
+    itens:            payload.itens,
+    total:            payload.total,
+    status:           'aguardando_aprovacao',
+    criadoEm:         new Date().toISOString(),
+  }
+
+  // Insere no início para aparecer primeiro na lista (mais recente)
+  mockPedidos = [novoPedido, ...mockPedidos]
+  return novoPedido
+}
+
+// ── Leitura ─────────────────────────────────────────────────────────────────
 
 export function getPedidoById(
   id: number,
@@ -606,7 +654,7 @@ export function queryPedidos({
   }
 }
 
-// ── Financeiro ──────────────────────────────────────────────────────────────
+// ── Financeiro ───────────────────────────────────────────────────────────────
 
 export interface FinanceiroResumo {
   faturado:            number
@@ -646,7 +694,7 @@ export function getFinanceiro(empresaId: number): FinanceiroResumo {
   }
 }
 
-// ── Mutação de status ───────────────────────────────────────────────────────
+// ── Mutação de status ────────────────────────────────────────────────────────
 
 export function updatePedidoStatus(
   id: number,
